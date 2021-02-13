@@ -8,7 +8,8 @@ import config
 # VARIABLES
 #  sym - symbol of trading
 sym = 'BNBUSDT'
-
+topValue = 1.5
+floorValue = -0.8
 # if starting from USDT set to False, if starting from BNB set to True
 trade = config.isBuyer(sym)
 
@@ -49,15 +50,15 @@ while True:  # -----  MAIN LOOP --------
         if correntPrice - startPrice >= 0:  # sold and price went up
             print(f"waiting for price to go down ", correntPrice, "bought", bought, "sold ", sold, "total ", total)
         else:
-            while (correntPrice - startPrice <= -0.018 * startPrice) and (trade == False):
+            while (correntPrice - startPrice <= floorValue) and (trade == False):
                 correntPrice = config.SetCorrrent(sym)
                 uphight = correntPrice
-                if correntPrice - uphight < 0:
+                if correntPrice - uphight <= 0:
                     print('GOING DOWN!! ', correntPrice, "bought", bought, "sold ", sold, "total ", total)
                     startPrice = uphight
                     print('new starting price: ', startPrice)
                 else:
-                    if correntPrice - uphight < 0.01 * uphight:
+                    if uphight - correntPrice < 0.33 * topValue:
                         bought += 1
                         # --------SET ORDER TO BUY--------
                         config.Trade.buy(sym, 0.41)
@@ -78,14 +79,14 @@ while True:  # -----  MAIN LOOP --------
 
         else:  # bought and price went up
             uphight = correntPrice
-            while (correntPrice - startPrice >= 0.03 * startPrice) and (trade == True):
+            while (correntPrice - startPrice >= topValue) and (trade == True):
                 correntPrice = config.SetCorrrent(sym)
-                if correntPrice - uphight > 0:
+                if correntPrice - uphight >= 0:
                     print('GOING UP!! ', correntPrice, "bought", bought, "sold ", sold, "total ", total)
                     startPrice = uphight
                     print('new starting price: ', startPrice)
                 else:
-                    if correntPrice - uphight < -0.001 * uphight:
+                    if uphight - correntPrice < 0.33 * topValue:
                         sold += 1
                         # --------SET ORDER TO SELL--------
                         config.Trade.sell(sym, 0.41)
