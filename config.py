@@ -2,8 +2,8 @@ from binance.client import Client
 from binance.enums import *
 
 # API KEY, get from your account on binance
-key1 = "WvrBN4oGcbJzFmcJAMlj7vqKcuFBida2U9M0RqprF1z5cdO8caZ2F0DQMzFSMtNu"
-key2 = "BMlog6nC1hldS4YQcAlujVB5zFehkGjw9gffc1T77FjPqcJAmetiJeqvGyYpVDOo"
+key1 = "your_api_key"
+key2 = "your_secret_key"
 client = Client(key1, key2)
 
 
