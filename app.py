@@ -8,8 +8,10 @@ import config
 # VARIABLES
 #  sym - symbol of trading
 sym = 'BNBUSDT'
-topValue = 1.5
-floorValue = -0.8
+topValue = 2
+vtopValue = topValue
+floorValue = -1.4
+vfloorValue = floorValue
 # if starting from USDT set to False, if starting from BNB set to True
 trade = config.isBuyer(sym)
 
@@ -53,52 +55,70 @@ while True:  # -----  MAIN LOOP --------
             while (correntPrice - startPrice <= floorValue) and (trade == False):
                 correntPrice = config.SetCorrrent(sym)
                 uphight = correntPrice
+                sleep(1)
+                correntPrice = config.SetCorrrent(sym)
                 if correntPrice - uphight <= 0:
+                    sleep(1)
+                    correntPrice = config.SetCorrrent(sym)
                     print('GOING DOWN!! ', correntPrice, "bought", bought, "sold ", sold, "total ", total)
-                    startPrice = uphight
-                    print('new starting price: ', startPrice)
-                else:
-                    if uphight - correntPrice < 0.33 * topValue:
-                        bought += 1
-                        # --------SET ORDER TO BUY--------
-                        config.Trade.buy(sym, 0.41)
-                        print("******************************************************")
-                        print('B %s' % bought)
-                        sleep(1)
-                        startPrice = config.lastTrade(sym)
-                        print("BOUGHT!!!!! ", startPrice)
-                        print("******************************************************")
-                        trade = True
+                    if correntPrice <= uphight:
+                        uphight = correntPrice
+                        floorValue = correntPrice - startPrice
+                        print('new upHigh price: ', uphight)
+                    else:
+                        print('new upHigh price: ', uphight)
+            # not of the while
+            # <0
+            if uphight - correntPrice > -0.15 * floorValue:
+                bought += 1
+                # --------SET ORDER TO BUY--------
+                config.Trade.buy(sym, 0.4)
+                print("******************************************************")
+                print('B %s' % bought)
+                sleep(1)
+                startPrice = config.lastTrade(sym)
+                print("BOUGHT!!!!! ", startPrice)
+                print("******************************************************")
+                floorValue = vfloorValue
+                trade = True
             print("waiting for price to go down ", correntPrice, "bought", bought, "sold ", sold, "total ", total)
 
     while trade:  # ------ WAITING FOR SELL--------
-        sleep(1)
         correntPrice = config.SetCorrrent(sym)  # corrent
         if correntPrice <= startPrice:  # bought and price went down
             print("waiting for price to go up ", correntPrice, "bought", bought, "sold ", sold, "total ", total)
 
         else:  # bought and price went up
-            uphight = correntPrice
             while (correntPrice - startPrice >= topValue) and (trade == True):
                 correntPrice = config.SetCorrrent(sym)
+                uphight = correntPrice
+                sleep(1)
+                correntPrice = config.SetCorrrent(sym)
                 if correntPrice - uphight >= 0:
+                    sleep(1)
+                    correntPrice = config.SetCorrrent(sym)
                     print('GOING UP!! ', correntPrice, "bought", bought, "sold ", sold, "total ", total)
-                    startPrice = uphight
-                    print('new starting price: ', startPrice)
-                else:
-                    if uphight - correntPrice < 0.33 * topValue:
-                        sold += 1
-                        # --------SET ORDER TO SELL--------
-                        config.Trade.sell(sym, 0.41)
-                        print("******************************************************")
-                        print('S %s' % sold)
-                        sleep(1)
-                        startPrice = config.lastTrade(sym)
-                        print("SOLD!!!!! ", startPrice)
-                        print("******************************************************")
-                        x = config.total(sym, 1)
-                        y = config.total(sym, 2)
-                        z = x - y
-                        total += z
-                        trade = False
+                    if correntPrice >= uphight:
+                        uphight = correntPrice
+                        topValue = correntPrice - startPrice
+                        print('new upHigh price: ', uphight)
+                    else:
+                        print('new upHigh price: ', uphight)
+
+            if uphight - correntPrice > 0.15 * topValue:
+                sold += 1
+                # --------SET ORDER TO SELL--------
+                config.Trade.sell(sym, 0.4)
+                print("******************************************************")
+                print('S %s' % sold)
+                sleep(1)
+                startPrice = config.lastTrade(sym)
+                print("SOLD!!!!! ", startPrice)
+                print("******************************************************")
+                topValue = vtopValue
+                x = config.total(sym, 1)
+                y = config.total(sym, 2)
+                z = x - y
+                total += z
+                trade = False
             print("waiting for price to go up ", correntPrice, "bought", bought, "sold ", sold, "total ", total)
